@@ -22,3 +22,6 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from imblearn.over_sampling import SMOTE
+import streamlit as st
+import altair as alt
+
