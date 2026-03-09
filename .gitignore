@@ -1,2 +1,2 @@
-*.csv
-*.xlsx
+data/*
+!data/cars_analysis_final.csv
