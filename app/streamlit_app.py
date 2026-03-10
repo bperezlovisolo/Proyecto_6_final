@@ -35,7 +35,6 @@ def preparar_features_modelo(df_input):
     ].copy()
 
     df_model = pd.get_dummies(df_model, columns=["powertrain_type"], drop_first=True)
-
     df_model = df_model.reindex(columns=model_features, fill_value=0)
 
     return df_model
@@ -222,8 +221,8 @@ input_dict = {
 
 input_df = pd.DataFrame(input_dict)
 
-input_model = pd.get_dummies(input_df, columns=["powertrain_type"], drop_first=True)
-input_model = input_model.reindex(columns=model_features, fill_value=0)
+input_df = pd.DataFrame(input_dict)
+input_model = preparar_features_modelo(input_df)
 
 if st.button("Predecir accesibilidad"):
     prediccion = model_ml.predict(input_model)[0]
