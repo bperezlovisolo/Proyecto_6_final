@@ -1,16 +1,7 @@
-import pandas as pd 
-import numpy as np
-import funciones as fs
-import matplotlib.pyplot as plt
-import seaborn as sns
-import mysql.connector
-from sqlalchemy import create_engine
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import classification_report, accuracy_score
-import streamlit as st
-import altair as alt
-import joblib
-import scikit-learn
-import pyarrow
-from pathlib import Path
+streamlit
+pandas
+altair
+joblib
+scikit-learn
+pyarrow
+numpy
