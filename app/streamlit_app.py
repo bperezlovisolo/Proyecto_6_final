@@ -2,9 +2,14 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import joblib
+from pathlib import Path
 
 st.set_page_config(page_title="Buscador de coches familiares", layout="wide")
 
+BASE_DIR = Path(__file__).resolve().parent
+DATA_PATH = BASE_DIR.parent / "data" / "cars_analysis_final.csv"
+MODEL_PATH = BASE_DIR / "modelo_accesibilidad.pkl"
+FEATURES_PATH = BASE_DIR / "model_features.pkl"
 
 @st.cache_data
 def load_data():
@@ -13,8 +18,8 @@ def load_data():
 
 df = load_data()
 
-model_ml = joblib.load("modelo_accesibilidad.pkl")
-model_features = joblib.load("model_features.pkl")
+model_ml = joblib.load(MODEL_PATH)
+model_features = joblib.load(FEATURES_PATH)
 
 def preparar_features_modelo(df_input):
     df_model = df_input[
@@ -117,31 +122,31 @@ else:
 
     st.dataframe(tabla_resultados, use_container_width=True)
 
-    st.subheader("Distribución por tecnología")
+    st.subheader("Distribución por motorización")
     powertrain_counts = df_filtered["powertrain_type"].value_counts()
     st.bar_chart(powertrain_counts)
 
     st.subheader("Precio vs Coste total de propiedad (5 años)")
 
-scatter = (
-    alt.Chart(df_filtered)
-    .mark_circle(size=80)
-    .encode(
-        x=alt.X("price_eur", title="Precio del vehículo (€)"),
-        y=alt.Y("cto_5y", title="Costo total 5 años (€)"),
-        color=alt.Color("powertrain_type", title="Motorización"),
-        tooltip=[
-            "brand",
-            "model_name",
-            "powertrain_type",
-            "price_eur",
-            "cto_5y",
-        ],
+    scatter = (
+        alt.Chart(df_filtered)
+        .mark_circle(size=80)
+        .encode(
+            x=alt.X("price_eur", title="Precio del vehículo (€)"),
+            y=alt.Y("cto_5y", title="Costo total 5 años (€)"),
+            color=alt.Color("powertrain_type", title="Motorización"),
+            tooltip=[
+                "brand",
+                "model_name",
+                "powertrain_type",
+                "price_eur",
+                "cto_5y",
+            ],
+        )
+        .interactive()
     )
-    .interactive()
-)
 
-st.altair_chart(scatter, use_container_width=True)
+    st.altair_chart(scatter, use_container_width=True)
 
 st.markdown("---")
 st.subheader("Predicción de accesibilidad con Machine Learning")
@@ -217,7 +222,6 @@ input_dict = {
 
 input_df = pd.DataFrame(input_dict)
 
-# Preparar input para el modelo
 input_model = pd.get_dummies(input_df, columns=["powertrain_type"], drop_first=True)
 input_model = input_model.reindex(columns=model_features, fill_value=0)
 
