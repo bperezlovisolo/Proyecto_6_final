@@ -1,2 +1,4 @@
 data/*
 !data/cars_analysis_final.csv
+!data/cars_final.csv
+!data/european_cars.xlsx

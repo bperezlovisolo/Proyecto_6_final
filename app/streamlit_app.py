@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+import joblib
 
 st.set_page_config(page_title="Buscador de coches familiares", layout="wide")
+
 
 @st.cache_data
 def load_data():
@@ -10,6 +12,28 @@ def load_data():
     return df
 
 df = load_data()
+
+model_ml = joblib.load("modelo_accesibilidad.pkl")
+model_features = joblib.load("model_features.pkl")
+
+def preparar_features_modelo(df_input):
+    df_model = df_input[
+        [
+            "price_eur",
+            "costo_total_anual",
+            "boot_capacity_l",
+            "seating_capacity",
+            "safety_rating",
+            "sustainable",
+            "powertrain_type",
+        ]
+    ].copy()
+
+    df_model = pd.get_dummies(df_model, columns=["powertrain_type"], drop_first=True)
+
+    df_model = df_model.reindex(columns=model_features, fill_value=0)
+
+    return df_model
 
 st.title("Buscador de vehículos familiares accesibles en España")
 st.markdown("""Explora qué vehículos familiares pueden ser accesibles para tu hogar según ingreso anual, necesidades de espacio y características del vehículo.""")
@@ -118,3 +142,94 @@ scatter = (
 )
 
 st.altair_chart(scatter, use_container_width=True)
+
+st.markdown("---")
+st.subheader("Predicción de accesibilidad con Machine Learning")
+st.write(
+    "Introduce las características de un vehículo y el modelo estimará si sería "
+    "Accesible, de Esfuerzo alto o Difícil para un hogar medio español."
+)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    ml_price = st.number_input(
+        "Precio del vehículo (€)",
+        min_value=10000,
+        max_value=200000,
+        value=30000,
+        step=1000
+    )
+
+    ml_cost = st.number_input(
+        "Coste anual (€)",
+        min_value=500,
+        max_value=5000,
+        value=1800,
+        step=100
+    )
+
+    ml_boot = st.number_input(
+        "Capacidad del maletero (L)",
+        min_value=100,
+        max_value=1200,
+        value=500,
+        step=10
+    )
+
+    ml_seats = st.number_input(
+        "Número de plazas",
+        min_value=2,
+        max_value=8,
+        value=5,
+        step=1
+    )
+
+with col2:
+    ml_safety = st.slider(
+        "Safety rating",
+        min_value=1.0,
+        max_value=5.0,
+        value=4.0,
+        step=0.5
+    )
+
+    ml_sustainable = st.selectbox(
+        "¿Es sostenible?",
+        options=[0, 1],
+        format_func=lambda x: "Sí" if x == 1 else "No"
+    )
+
+    ml_powertrain = st.selectbox(
+        "Tipo de motorización",
+        options=["Diesel", "EV", "Hybrid", "Petrol"]
+    )
+
+input_dict = {
+    "price_eur": [ml_price],
+    "costo_total_anual": [ml_cost],
+    "boot_capacity_l": [ml_boot],
+    "seating_capacity": [ml_seats],
+    "safety_rating": [ml_safety],
+    "sustainable": [ml_sustainable],
+    "powertrain_type": [ml_powertrain],
+}
+
+input_df = pd.DataFrame(input_dict)
+
+# Preparar input para el modelo
+input_model = pd.get_dummies(input_df, columns=["powertrain_type"], drop_first=True)
+input_model = input_model.reindex(columns=model_features, fill_value=0)
+
+if st.button("Predecir accesibilidad"):
+    prediccion = model_ml.predict(input_model)[0]
+
+    if prediccion == "Accesible":
+        st.success(f"Predicción del modelo: {prediccion}")
+    elif prediccion == "Esfuerzo alto":
+        st.warning(f"Predicción del modelo: {prediccion}")
+    else:
+        st.error(f"Predicción del modelo: {prediccion}")
+
+
+

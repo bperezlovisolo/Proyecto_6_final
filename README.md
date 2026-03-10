@@ -1,6 +1,8 @@
 # Proyecto_6_final
 Proyecto final bootcamp "Data Analytics"
 
+https://proyecto6final-lcsejaa8psvyqom8wpi5p4.streamlit.app/
+
 KPIS
 
 1) Definiciones que vamos a fijar (para que el proyecto sea consistente)

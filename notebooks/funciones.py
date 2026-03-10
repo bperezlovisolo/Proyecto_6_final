@@ -64,3 +64,12 @@ def costes_anuales(df, km_year=15000):
     df['costo_total_anual'] = df['costo_energia_anual'] + df['maintenance_cost_year']
 
     return df
+
+def clasificar_accesibilidad(x):
+    
+    if x < 0.8:
+        return "Accesible"
+    elif x < 1.2:
+        return "Esfuerzo alto"
+    else:
+        return "Dificil"
